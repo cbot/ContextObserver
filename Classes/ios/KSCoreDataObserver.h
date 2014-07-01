@@ -8,28 +8,67 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+/**
+ *  The type of a NSManagedObject change event
+ */
 typedef NS_ENUM(NSUInteger, KSObserverType) {
+	/**
+	 *  An object's attributes were changed
+	 */
 	KSObserverTypeUpdated = 1,
+	/**
+	 *  A new object was inserted
+	 */
 	KSObserverTypeInserted = 2,
+	/**
+	 *  An object was deleted
+	 */
 	KSObserverTypeDeleted = 4,
+	/**
+	 *  All of the above
+	 */
 	KSObserverTypeAll = 7
 };
 
-typedef void (^ChangeBlock)(KSObserverType type, NSManagedObject *object, NSArray* attributes);
-typedef void (^ObjectsDidChangeBlock)(NSSet *updated, NSSet *inserted, NSSet* deleted);
+/**
+ *  A block of this type is called whenever the observer detects changes in the NSManagedObjectContext
+ *
+ *  @param type          A value of type KSObserverType that indicates the type of event for this call
+ *  @param managedObject The NSManagedObject that was inserted, deleted or updated
+ *  @param updatedKeys   Only for KSObserverTypeUpdated: an array of changed keys that were changed for the NSManagedObject
+ */
+typedef void (^ObjectDidChangeBlock)(KSObserverType type, NSManagedObject *managedObject, NSArray *updatedKeys);
 
-@interface KSCoreDataFilteredObserver : NSObject
-@property (nonatomic, assign) KSObserverType mask;
-@property (nonatomic, strong) ChangeBlock changeBlock;
-- (BOOL)execute:(NSSet*)updated inserted:(NSSet*)inserted deleted:(NSSet*)deleted;
-@end
-
+/**
+ *  KSCoreDataObserver makes it easy to observe a NSManagedObjectContext for inserted, deleted or updated objects.
+ */
 @interface KSCoreDataObserver : NSObject
+/**
+ *  The block that is called to indicate changes in the NSMangedObjectContext
+ */
+@property (nonatomic, strong) ObjectDidChangeBlock objectDidChangeBlock;
+
+/**
+ *  Optional: set this property to only observe the given NSManagedObjectContext
+ */
 @property (nonatomic, weak) NSManagedObjectContext *requiredContext;
-@property (nonatomic, strong) ObjectsDidChangeBlock objectsDidChangeBlock;
+
+/**
+ *  Optional: set this property to determine the type of changes to be observed
+ */
 @property (nonatomic, assign) KSObserverType mask;
 
-- (void)addFilteredObserver:(KSCoreDataFilteredObserver*)observer;
-@end
+/**
+ *  Optional: call this method to set a specific NSManagedObject that should be observed
+ *
+ *  @param managedObject A NSManagedObject to be observed for changes
+ */
+- (void)setObservedObject:(NSManagedObject*)managedObject;
 
-#import "KSCoreDataManagedObjectObserver.h"
+/**
+ *  Optional: call this method to set an array of NSManagedObjects that should be observed
+ *
+ *  @param managedObjects An array of NSManagedObjects to be observed for changes
+ */
+- (void)setObservedObjects:(NSArray*)managedObjects;
+@end
