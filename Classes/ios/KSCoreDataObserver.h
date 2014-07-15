@@ -59,6 +59,11 @@ typedef void (^ObjectDidChangeBlock)(KSObserverType type, NSManagedObject *manag
 @property (nonatomic, assign) KSObserverType mask;
 
 /**
+ *  Optional: set this property to YES in order to get notifications for KSObserverTypeUpdated events without actually changed values
+ */
+@property (nonatomic, assign) BOOL reportUpdatesWithoutChanges;
+
+/**
  *  Optional: call this method to set a specific NSManagedObject that should be observed
  *
  *  @param managedObject A NSManagedObject to be observed for changes

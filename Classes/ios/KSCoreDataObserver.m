@@ -63,7 +63,8 @@
 		}
 		
 		for (NSManagedObject *object in updatedObjects) {
-			if (self.observedObjectIDs.count == 0 || [self.observedObjectIDs containsObject:object.objectID]) self.objectDidChangeBlock(KSObserverTypeUpdated, object, [[object changedValuesForCurrentEvent] allKeys]);
+			NSArray *updatedKeys = [[object changedValuesForCurrentEvent] allKeys];
+			if ((updatedKeys.count > 0 || self.reportUpdatesWithoutChanges) && (self.observedObjectIDs.count == 0 || [self.observedObjectIDs containsObject:object.objectID])) self.objectDidChangeBlock(KSObserverTypeUpdated, object, updatedKeys);
 		}
 	}
 }
