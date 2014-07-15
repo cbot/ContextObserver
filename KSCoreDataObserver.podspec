@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "KSCoreDataObserver"
-  s.version      = "1.0.0"
+  s.version      = "1.0.1"
   s.summary      = "A small library to manage CoreData notifications in order to update the user interface"
   s.homepage     = "https://github.com/cbot/KSCoreDataObserver"
   s.license      = 'MIT'
