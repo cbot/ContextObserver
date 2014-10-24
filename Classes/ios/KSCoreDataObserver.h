@@ -64,6 +64,26 @@ typedef void (^ObjectDidChangeBlock)(KSObserverType type, NSManagedObject *manag
 @property (nonatomic, assign) BOOL reportUpdatesWithoutChanges;
 
 /**
+ *  Optional: a user defined predicate to filter observed objects. Be very careful when setting this property to avoid key value coding related crashes.
+ *  Always make sure to also set either an observed entity name or an observed object.
+ */
+@property (nonatomic, strong) NSPredicate *predicate;
+
+/**
+ *  Optional: call this method to set a specific entity name that should be observed
+ *
+ *  @param entityName An entity name to be observed for changes
+ */
+- (void)setObservedEntityName:(NSString*)entityName;
+
+/**
+ *  Optional: call this method to set an array of entity names that should be observed
+ *
+ *  @param entityNames An array of entity names as strings to be observed for changes
+ */
+- (void)setObservedEntityNames:(NSArray*)entityNames;
+
+/**
  *  Optional: call this method to set a specific NSManagedObject that should be observed
  *
  *  @param managedObject A NSManagedObject to be observed for changes
