@@ -70,6 +70,11 @@ typedef void (^ObjectDidChangeBlock)(KSObserverType type, NSManagedObject *manag
 @property (nonatomic, strong) NSPredicate *predicate;
 
 /**
+ *  Optional: set this to define keys that should not trigger a notification
+ */
+@property (nonatomic, strong) NSArray *ignoredKeys;
+
+/**
  *  Optional: call this method to set a specific entity name that should be observed
  *
  *  @param entityName An entity name to be observed for changes

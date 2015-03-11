@@ -72,6 +72,11 @@
 		
 		for (NSManagedObject *object in updatedObjects) {
 			NSArray *updatedKeys = [[object changedValuesForCurrentEvent] allKeys];
+            
+            if (self.ignoredKeys) {
+                updatedKeys = [updatedKeys filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF IN %@)", self.ignoredKeys]];
+            }
+            
 			if ((updatedKeys.count > 0 || self.reportUpdatesWithoutChanges) && [self isObservedObject:object]) {
 				self.objectDidChangeBlock(KSObserverTypeUpdated, object, updatedKeys);
 			}
