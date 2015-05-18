@@ -43,6 +43,14 @@ typedef void (^ObjectDidChangeBlock)(KSObserverType type, NSManagedObject *manag
  *  KSCoreDataObserver makes it easy to observe a NSManagedObjectContext for inserted, deleted or updated objects.
  */
 @interface KSCoreDataObserver : NSObject
+
+/**
+ *  The designated initializer for KSCoreDataObserver
+ *
+ *  @param context the context to observe. Pass nil to observer all contexts. Note: completion blocks will be called from the context's thread!
+ */
+- (instancetype)initWithContext:(NSManagedObjectContext*)context NS_DESIGNATED_INITIALIZER;
+
 /**
  *  The block that is called to indicate changes in the NSMangedObjectContext
  */
@@ -75,18 +83,14 @@ typedef void (^ObjectDidChangeBlock)(KSObserverType type, NSManagedObject *manag
 @property (nonatomic, strong) NSArray *ignoredKeys;
 
 /**
- *  Optional: call this method to set a specific entity name that should be observed
- *
- *  @param entityName An entity name to be observed for changes
+ *  Optional: an array of NSManagedObjectID instances whose corresponding NSManagedObjects should be observed for changes
  */
-- (void)setObservedEntityName:(NSString*)entityName;
+@property (nonatomic, strong) NSArray *observedObjectIDs;
 
 /**
- *  Optional: call this method to set an array of entity names that should be observed
- *
- *  @param entityNames An array of entity names as strings to be observed for changes
+ *  Optional: an array of entity names (as strings) that should be observed for changes
  */
-- (void)setObservedEntityNames:(NSArray*)entityNames;
+@property (nonatomic, strong) NSArray *observedEntityNames;
 
 /**
  *  Optional: call this method to set a specific NSManagedObject that should be observed

@@ -8,23 +8,28 @@
 #import "KSCoreDataObserver.h"
 
 @interface KSCoreDataObserver ()
-@property (nonatomic, strong) NSArray *observedObjectIDs; // this holds the (optional!) array of observed managed object IDs
-@property (nonatomic, strong) NSArray *observedEntityNames; // this holds the (optional!) array of observed entity names
 @property (nonatomic, strong) NSPredicate *fullPredicate; // this is the predicate that is actually used to filter objects, see updateFullPredicate
 @end
 
 @implementation KSCoreDataObserver
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-		self.observedObjectIDs = [NSArray array]; // empty array: ALL NSManagedObjects are observed
-		self.observedEntityNames = [NSArray array]; // empty array: ALL entities are observed
+- (instancetype)initWithContext:(NSManagedObjectContext *)context {
+	if (self = [super init]) {
+		_observedObjectIDs = [NSArray array]; // empty array: ALL NSManagedObjects are observed
+		_observedEntityNames = [NSArray array]; // empty array: ALL entities are observed
+		_mask = KSObserverTypeAll; // default: observe all change types, insert, delete, update
+		_requiredContext = context; // make sure we only react to notifications from the correct context
 		
-		self.mask = KSObserverTypeAll; // default: observe all change types, insert, delete, update
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(managedObjectDidChange:) name:NSManagedObjectContextObjectsDidChangeNotification object:nil];
-    }
-    return self;
+		// register for notifications
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(managedObjectDidChange:) name:NSManagedObjectContextObjectsDidChangeNotification object:nil];
+	}
+	return self;
+}
+
+- (instancetype)init {
+	if (self = [self initWithContext:nil]) {
+	}
+	return self;
 }
 
 - (void)managedObjectDidChange:(NSNotification*)notification {

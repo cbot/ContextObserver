@@ -9,12 +9,12 @@ Whenever a change event occurs, a block is called that allows you to update your
 ## Installation
 Use CocoaPods to add KSCoreDataObserver to your project. Just add the following line to your Podfile.
 ```
-pod 'KSCoreDataObserver', '~> 1.2.0'
+pod 'KSCoreDataObserver', '~> 1.2.1'
 ```
 ## Example
 ```objective-c
-KSCoreDataObserver *observer = [[KSCoreDataObserver alloc] init];
-[observer setRequiredContext:aNSManagedObjectContext]; // optional to observe a specific NSManagedObjectContext
+KSCoreDataObserver *observer = [[KSCoreDataObserver alloc] initWithContext:aNSManagedObjectContext];
+[observer setRequiredContext:nil]; // optional to observe ALL NSManagedObjectContexts - be careful with threading!
 [observer setObservedObject:aManagedObject]; // optional to observe a specific NSManagedObject
 [observer setObservedEntityName:@"EntityName"]; // optional to observe objects of a specific entity
 [observer setPredicate:[NSPredicate predicateWithFormat:@"attribute = 123"]]; // optional to set a user defined filter for observed objects
