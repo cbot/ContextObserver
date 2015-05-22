@@ -9,7 +9,7 @@ Whenever a change event occurs, a block is called that allows you to update your
 ## Installation
 Use CocoaPods to add KSCoreDataObserver to your project. Just add the following line to your Podfile.
 ```
-pod 'KSCoreDataObserver', '~> 1.2.1'
+pod 'KSCoreDataObserver', '~> 1.2.2'
 ```
 ## Example
 ```objective-c
