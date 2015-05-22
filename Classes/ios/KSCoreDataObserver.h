@@ -52,6 +52,11 @@ typedef void (^ObjectDidChangeBlock)(KSObserverType type, NSManagedObject *manag
 - (instancetype)initWithContext:(NSManagedObjectContext*)context NS_DESIGNATED_INITIALIZER;
 
 /**
+ *  YES if the observer should be active, NO otherwise. The default value ist YES.
+ */
+@property (nonatomic, assign) BOOL active;
+
+/**
  *  The block that is called to indicate changes in the NSMangedObjectContext
  */
 @property (nonatomic, strong) ObjectDidChangeBlock objectDidChangeBlock;
@@ -91,6 +96,11 @@ typedef void (^ObjectDidChangeBlock)(KSObserverType type, NSManagedObject *manag
  *  Optional: an array of entity names (as strings) that should be observed for changes
  */
 @property (nonatomic, strong) NSArray *observedEntityNames;
+
+/**
+ *  Optional: an entity name that should be observed for changes
+ */
+- (void)setObservedEntityName:(NSString*)entityName;
 
 /**
  *  Optional: call this method to set a specific NSManagedObject that should be observed

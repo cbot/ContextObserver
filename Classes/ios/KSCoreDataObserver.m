@@ -19,7 +19,8 @@
 		_observedEntityNames = [NSArray array]; // empty array: ALL entities are observed
 		_mask = KSObserverTypeAll; // default: observe all change types, insert, delete, update
 		_requiredContext = context; // make sure we only react to notifications from the correct context
-		
+        _active = YES; // activate our observer
+        
 		// register for notifications
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(managedObjectDidChange:) name:NSManagedObjectContextObjectsDidChangeNotification object:nil];
 	}
@@ -33,8 +34,9 @@
 }
 
 - (void)managedObjectDidChange:(NSNotification*)notification {
+    if (!self.active) return; // observer disabled
+    
 	NSManagedObjectContext *context = notification.object;
-	
 	if (self.requiredContext && self.requiredContext != context) return; // if a special context ist set for this observer: make sure we got the notification from the right one
 	
 	// get inserted objects
