@@ -1,21 +1,14 @@
 import Foundation
 import CoreData
 
-public struct EventType : RawOptionSetType, BooleanType {
-    typealias RawValue = UInt
-    private var value: UInt = 7
-    init(_ value: UInt) { self.value = value }
-    public init(rawValue value: UInt) { self.value = value }
-    public init(nilLiteral: ()) { self.value = 7 }
-    public static var allZeros: EventType { return self(0) }
-    static func fromMask(raw: UInt) -> EventType { return self(raw) }
-    public var rawValue: UInt { return self.value }
-    public var boolValue: Bool { return value != 0 }
+public struct EventType : OptionSetType {
+    public let rawValue: UInt
+    public init(rawValue: UInt) {self.rawValue = rawValue}
     
-    public static var All: EventType  { return self(7) }
-    public static var Deleted: EventType { return self(1) }
-    public static var Inserted: EventType   { return self(2) }
-    public static var Updated: EventType  { return self(4) }
+    static let All = EventType(rawValue: 7)
+    static let Deleted = EventType(rawValue: 1)
+    static let Inserted = EventType(rawValue: 2)
+    static let Updated = EventType(rawValue: 4)
 }
 
 public class Handler {
@@ -33,14 +26,14 @@ public class Handler {
         observedContext = context
     }
     
-    func handle(#insertedObjects: Set<NSManagedObject>, deletedObjects: Set<NSManagedObject>, updatedObjects: Set<NSManagedObject>) {
+    func handle(insertedObjects insertedObjects: Set<NSManagedObject>, deletedObjects: Set<NSManagedObject>, updatedObjects: Set<NSManagedObject>) {
         if !active {
             return
         }
         
-        if filterMask & .Updated {
+        if filterMask.contains(.Updated) {
             for object in updatedObjects {
-                var updatedKeys = (object.changedValuesForCurrentEvent().keys.array as! [NSString]) as! [String]
+                var updatedKeys = (object.changedValuesForCurrentEvent().keys.array)
                 
                 var objectIgnoredKeys = filterIgnoredKeys ?? [String]()
                 if let object = object as? Observable {
@@ -48,31 +41,31 @@ public class Handler {
                 }
                 
                 updatedKeys = updatedKeys.filter { key in
-                    !contains(objectIgnoredKeys, key)
+                    !objectIgnoredKeys.contains(key)
                 }
                 
                 if (!updatedKeys.isEmpty || handleUpdatesWithoutChanges) && isObserved(object) {
-                    if ContextObserver.debugOutput { println("U \(object.entity.name != nil ? object.entity.name! : String()) - \(updatedKeys.debugDescription)") }
+                    if ContextObserver.debugOutput { print("U \(object.entity.name != nil ? object.entity.name! : String()) - \(updatedKeys.debugDescription)") }
                     block?(object: object, type: EventType.Updated, keys: updatedKeys)
                 }
             }
         }
         
-        if filterMask & .Deleted {
+        if filterMask.contains(.Deleted) {
             let emptyArray = [String]()
             for object in deletedObjects {
                 if isObserved(object) {
-                    if ContextObserver.debugOutput { println("D \(object.entity.name != nil ? object.entity.name! : String())") }
+                    if ContextObserver.debugOutput { print("D \(object.entity.name != nil ? object.entity.name! : String())") }
                     block?(object: object, type: EventType.Deleted, keys: emptyArray)
                 }
             }
         }
         
-        if filterMask & .Inserted {
+        if filterMask.contains(.Inserted) {
             let emptyArray = [String]()
             for object in insertedObjects {
                 if isObserved(object) {
-                    if ContextObserver.debugOutput { println("I \(object.entity.name != nil ? object.entity.name! : String())") }
+                    if ContextObserver.debugOutput { print("I \(object.entity.name != nil ? object.entity.name! : String())") }
                     block?(object: object, type: EventType.Inserted, keys: emptyArray)
                 }
             }
@@ -100,11 +93,11 @@ public class Handler {
     
     public func filter(filterClasses: [NSManagedObject.Type], predicates: [NSPredicate]? = nil) -> Self {
         if let predicates = predicates where predicates.count != filterClasses.count {
-            println("filterClasses count differs predicates count - filtering won't work as expected!")
+            print("filterClasses count differs predicates count - filtering won't work as expected!", appendNewline: false)
             return self
         }
         
-        for (index, filterClass) in enumerate(filterClasses) {
+        for (index, filterClass) in filterClasses.enumerate() {
             filter(filterClass, predicate: predicates?[index])
         }
         return self
@@ -147,7 +140,7 @@ public class Handler {
         if !filterEntityDescriptions.isEmpty {
             var contains = false
             
-            for (index, description) in enumerate(filterEntityDescriptions) {
+            for (index, description) in filterEntityDescriptions.enumerate() {
                 if object.entity.isKindOfEntity(description) {
                     if let predicate = filterPredicates[index] {
                         if predicate.evaluateWithObject(object) {
@@ -169,12 +162,11 @@ public class Handler {
     }
     
     func entityDescriptionForType(type: NSManagedObject.Type) -> NSEntityDescription? {
-        if let model = observedContext.persistentStoreCoordinator?.managedObjectModel, entities = model.entities as? [NSEntityDescription],
-        description = entities.filter({ e in e.managedObjectClassName == toString(type.classForCoder()) }).first {
+        if let model = observedContext.persistentStoreCoordinator?.managedObjectModel, description = model.entities.filter({ e in e.managedObjectClassName == String(type.classForCoder()) }).first {
             return description
         }
         
-        println("Unable to find EntityDescription for type \(type.debugDescription()) - filtering won't work as expected!")
+        print("Unable to find EntityDescription for type \(type.debugDescription()) - filtering won't work as expected!", appendNewline: false)
         return nil
     }
 }
