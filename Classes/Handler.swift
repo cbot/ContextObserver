@@ -5,10 +5,10 @@ public struct EventType : OptionSetType {
     public let rawValue: UInt
     public init(rawValue: UInt) {self.rawValue = rawValue}
     
-    static let All = EventType(rawValue: 7)
-    static let Deleted = EventType(rawValue: 1)
-    static let Inserted = EventType(rawValue: 2)
-    static let Updated = EventType(rawValue: 4)
+    public static let All = EventType(rawValue: 7)
+    public static let Deleted = EventType(rawValue: 1)
+    public static let Inserted = EventType(rawValue: 2)
+    public static let Updated = EventType(rawValue: 4)
 }
 
 public class Handler {
