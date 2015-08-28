@@ -33,7 +33,7 @@ public class Handler {
         
         if filterMask.contains(.Updated) {
             for object in updatedObjects {
-                var updatedKeys = (object.changedValuesForCurrentEvent().keys.array)
+                var updatedKeys = Array(object.changedValuesForCurrentEvent().keys)
                 
                 var objectIgnoredKeys = filterIgnoredKeys ?? [String]()
                 if let object = object as? Observable {
@@ -93,7 +93,7 @@ public class Handler {
     
     public func filter(filterClasses: [NSManagedObject.Type], predicates: [NSPredicate]? = nil) -> Self {
         if let predicates = predicates where predicates.count != filterClasses.count {
-            print("filterClasses count differs predicates count - filtering won't work as expected!", appendNewline: false)
+            print("filterClasses count differs predicates count - filtering won't work as expected!")
             return self
         }
         
@@ -166,7 +166,7 @@ public class Handler {
             return description
         }
         
-        print("Unable to find EntityDescription for type \(type.debugDescription()) - filtering won't work as expected!", appendNewline: false)
+        print("Unable to find EntityDescription for type \(type.debugDescription()) - filtering won't work as expected!")
         return nil
     }
 }
