@@ -162,7 +162,7 @@ public class Handler {
     }
     
     func entityDescriptionForType(type: NSManagedObject.Type) -> NSEntityDescription? {
-        if let model = observedContext.persistentStoreCoordinator?.managedObjectModel, description = model.entities.filter({ e in e.name == String(type.classForCoder()) }).first {
+        if let model = observedContext.persistentStoreCoordinator?.managedObjectModel, description = model.entities.filter({ e in e.managedObjectClassName == String(type.classForCoder()) }).first {
             return description
         }
         

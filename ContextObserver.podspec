@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ContextObserver"
-  s.version      = "2.1.0"
+  s.version      = "2.1.1"
   s.summary      = "A small library to manage CoreData notifications in order to update the user interface"
   s.homepage     = "https://github.com/cbot/ContextObserver"
   s.license      = 'MIT'
