@@ -22,6 +22,9 @@ public class Handler {
     private(set) public var filterIgnoredKeys: [String]?
     private var block: ((object: NSManagedObject, type: EventType, keys: [String]) -> Void)?
     
+    /// A dictionary that is used as a cache for the entityForClass method. The dictionary maps fully qualified core data model class names (Module.ClassName) to the associated NSEntityDescription instance
+    private(set) var entityDescriptionsMap = [String: NSEntityDescription]()
+    
     init(context: NSManagedObjectContext) {
         observedContext = context
     }
@@ -118,7 +121,7 @@ public class Handler {
     }
     
     public func filter(filterClass: NSManagedObject.Type, predicate: NSPredicate? = nil) -> Self {
-        if let description = entityDescriptionForType(filterClass) {
+        if let description = entityForClass(filterClass) {
             filterEntityDescriptions.append(description)
             filterPredicates.append(predicate)
         }
@@ -161,12 +164,45 @@ public class Handler {
         return true
     }
     
-    func entityDescriptionForType(type: NSManagedObject.Type) -> NSEntityDescription? {
-        if let model = observedContext.persistentStoreCoordinator?.managedObjectModel, description = model.entities.filter({ e in e.managedObjectClassName == String(type.classForCoder()) }).first {
-            return description
+    
+    /**
+     Method that tries to find the associated NSEntityDescription for a given NSManagedObject subclass.
+     
+     - parameter classType: the class to find the NSEntityDescription for
+     
+     - returns: the NSEntityDescription for the given class or nil
+     */
+    func entityForClass<T: NSManagedObject>(classType: T.Type) -> NSEntityDescription? {
+        guard let model = observedContext.persistentStoreCoordinator?.managedObjectModel else {
+            print("Unable to find EntityDescription for type \(classType.debugDescription()) - filtering won't work as expected!")
+            return nil
         }
         
-        print("Unable to find EntityDescription for type \(type.debugDescription()) - filtering won't work as expected!")
-        return nil
+        let fullClassName = NSStringFromClass(classType) as String // get the Module.ClassName representation
+        
+        // let's see if we have a NSEntityDescription in our cache
+        if let entity = entityDescriptionsMap[fullClassName] {
+            return entity
+        }
+        
+        // reduce entities to a fitting NSEntityDescription
+        let entity = model.entities.reduce(nil as NSEntityDescription?) { current, entity in
+            if current != nil {
+                return current
+            } else if entity.managedObjectClassName == fullClassName {
+                return entity
+            } else {
+                return nil
+            }
+        }
+        
+        if entity == nil {
+            print("Unable to find EntityDescription for type \(classType.debugDescription()) - filtering won't work as expected!")
+        }
+        
+        // update cache
+        entityDescriptionsMap[fullClassName] = entity
+        
+        return entity
     }
 }
