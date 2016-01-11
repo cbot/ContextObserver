@@ -115,7 +115,7 @@ public class Handler {
     
     public func filter(object: NSManagedObject?) -> Self {
         if let object = object {
-            filter(object.dynamicType, predicate: NSPredicate(format: "objectID = %@", object.objectID))
+            filter(NSPredicate(format: "objectID = %@", object.objectID))
         }
         return self
     }
