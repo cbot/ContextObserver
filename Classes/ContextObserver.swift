@@ -23,6 +23,10 @@ public class ContextObserver: NSObject {
         return blockHandler
     }
     
+    public func clear() {
+        registeredHandlers.removeAll()
+    }
+    
     // MARK: - Notifications
     func managedObjectDidChange(notification: NSNotification) {
         if !active { // observer disabled
