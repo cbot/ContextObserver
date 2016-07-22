@@ -14,7 +14,7 @@ public class ContextObserver: NSObject {
         super.init()
         
         // register for notifications
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "managedObjectDidChange:", name: NSManagedObjectContextObjectsDidChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ContextObserver.managedObjectDidChange(_:)), name: NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: nil)
     }
         
     public func add() -> Handler {
@@ -28,12 +28,12 @@ public class ContextObserver: NSObject {
     }
     
     // MARK: - Notifications
-    func managedObjectDidChange(notification: NSNotification) {
+    func managedObjectDidChange(_ notification: Notification) {
         if !active { // observer disabled
             return
         }
         
-        if let context = notification.object as? NSManagedObjectContext, userInfo = notification.userInfo where context == observedContext {
+        if let context = notification.object as? NSManagedObjectContext, let userInfo = (notification as NSNotification).userInfo, context == observedContext {
             let insertedObjects = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject> ?? Set<NSManagedObject>()
             let deletedObjects = userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject> ?? Set<NSManagedObject>()
             let updatedObjects = userInfo[NSUpdatedObjectsKey] as? Set<NSManagedObject> ?? Set<NSManagedObject>()
@@ -46,6 +46,6 @@ public class ContextObserver: NSObject {
     
     // MARK: - Memory
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
 }

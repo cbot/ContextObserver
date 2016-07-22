@@ -1,7 +1,7 @@
 import Foundation
 import CoreData
 
-public struct EventType : OptionSetType {
+public struct EventType : OptionSet {
     public let rawValue: UInt
     public init(rawValue: UInt) {self.rawValue = rawValue}
     
@@ -15,8 +15,8 @@ public class Handler {
     public var active = true
     private(set) public var filterMask: EventType = .All
     private(set) public var filterEntityDescriptions = [NSEntityDescription]()
-    private(set) public var filterPredicates = [NSPredicate?]()
-    private(set) public var filterGlobalPredicate: NSPredicate?
+    private(set) public var filterPredicates = [Predicate?]()
+    private(set) public var filterGlobalPredicate: Predicate?
     private(set) public var observedContext: NSManagedObjectContext
     private(set) public var handleUpdatesWithoutChanges = false
     private(set) public var filterIgnoredKeys: [String]?
@@ -29,7 +29,7 @@ public class Handler {
         observedContext = context
     }
     
-    func handle(insertedObjects insertedObjects: Set<NSManagedObject>, deletedObjects: Set<NSManagedObject>, updatedObjects: Set<NSManagedObject>) {
+    func handle(insertedObjects: Set<NSManagedObject>, deletedObjects: Set<NSManagedObject>, updatedObjects: Set<NSManagedObject>) {
         if !active {
             return
         }
@@ -75,52 +75,59 @@ public class Handler {
         }
     }
     
-    public func block(block: (object: NSManagedObject, type: EventType, keys: [String]) -> Void) {
+    public func block(_ block: (object: NSManagedObject, type: EventType, keys: [String]) -> Void) {
         self.block = block
     }
     
-    public func handleUpdatesWithoutChanges(handle: Bool = true) -> Self {
+    @discardableResult
+    public func handleUpdatesWithoutChanges(_ handle: Bool = true) -> Self {
         handleUpdatesWithoutChanges = handle
         return self
     }
     
-    public func filter(type: EventType) -> Self {
+    @discardableResult
+    public func filter(_ type: EventType) -> Self {
         filterMask = type
         return self
     }
     
-    public func filter(predicate: NSPredicate) -> Self {
+    @discardableResult
+    public func filter(_ predicate: Predicate) -> Self {
         filterGlobalPredicate = predicate
         return self
     }
     
-    public func filter(filterClasses: [NSManagedObject.Type], predicates: [NSPredicate]? = nil) -> Self {
-        if let predicates = predicates where predicates.count != filterClasses.count {
+    @discardableResult
+    public func filter(_ filterClasses: [NSManagedObject.Type], predicates: [Predicate]? = nil) -> Self {
+        if let predicates = predicates, predicates.count != filterClasses.count {
             print("filterClasses count differs predicates count - filtering won't work as expected!")
             return self
         }
         
-        for (index, filterClass) in filterClasses.enumerate() {
+        for (index, filterClass) in filterClasses.enumerated() {
             filter(filterClass, predicate: predicates?[index])
         }
         return self
     }
     
-    public func filter(objects: [NSManagedObject]) -> Self {
+    @discardableResult
+    public func filter(_ objects: [NSManagedObject]) -> Self {
         for object in objects {
             filter(object)
         }
         return self
     }
     
-    public func filter(object: NSManagedObject?) -> Self {
+    @discardableResult
+    public func filter(_ object: NSManagedObject?) -> Self {
         if let object = object {
-            filter(NSPredicate(format: "objectID = %@", object.objectID))
+            filter(Predicate(format: "objectID = %@", object.objectID))
         }
         return self
     }
     
-    public func filter(filterClass: NSManagedObject.Type, predicate: NSPredicate? = nil) -> Self {
+    @discardableResult
+    public func filter(_ filterClass: NSManagedObject.Type, predicate: Predicate? = nil) -> Self {
         if let description = entityForClass(filterClass) {
             filterEntityDescriptions.append(description)
             filterPredicates.append(predicate)
@@ -128,14 +135,15 @@ public class Handler {
         return self
     }
     
-    public func ignoreKeys(keys: [String]) -> Self {
+    @discardableResult
+    public func ignoreKeys(_ keys: [String]) -> Self {
         filterIgnoredKeys = keys
         return self
     }
     
-    func isObserved(object: NSManagedObject) -> Bool {
+    func isObserved(_ object: NSManagedObject) -> Bool {
         if let filterGlobalPredicate = filterGlobalPredicate {
-            if !filterGlobalPredicate.evaluateWithObject(object) {
+            if !filterGlobalPredicate.evaluate(with: object) {
                 return false
             }
         }
@@ -143,10 +151,10 @@ public class Handler {
         if !filterEntityDescriptions.isEmpty {
             var contains = false
             
-            for (index, description) in filterEntityDescriptions.enumerate() {
-                if object.entity.isKindOfEntity(description) {
+            for (index, description) in filterEntityDescriptions.enumerated() {
+                if object.entity.isKindOf(entity: description) {
                     if let predicate = filterPredicates[index] {
-                        if predicate.evaluateWithObject(object) {
+                        if predicate.evaluate(with: object) {
                             contains = true
                             break
                         }
@@ -172,7 +180,7 @@ public class Handler {
      
      - returns: the NSEntityDescription for the given class or nil
      */
-    func entityForClass<T: NSManagedObject>(classType: T.Type) -> NSEntityDescription? {
+    func entityForClass<T: NSManagedObject>(_ classType: T.Type) -> NSEntityDescription? {
         guard let model = observedContext.persistentStoreCoordinator?.managedObjectModel else {
             print("Unable to find EntityDescription for type \(classType.debugDescription()) - filtering won't work as expected!")
             return nil
