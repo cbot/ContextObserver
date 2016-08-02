@@ -15,8 +15,8 @@ public class Handler {
     public var active = true
     private(set) public var filterMask: EventType = .All
     private(set) public var filterEntityDescriptions = [NSEntityDescription]()
-    private(set) public var filterPredicates = [Predicate?]()
-    private(set) public var filterGlobalPredicate: Predicate?
+    private(set) public var filterPredicates = [NSPredicate?]()
+    private(set) public var filterGlobalPredicate: NSPredicate?
     private(set) public var observedContext: NSManagedObjectContext
     private(set) public var handleUpdatesWithoutChanges = false
     private(set) public var filterIgnoredKeys: [String]?
@@ -92,13 +92,13 @@ public class Handler {
     }
     
     @discardableResult
-    public func filter(_ predicate: Predicate) -> Self {
+    public func filter(_ predicate: NSPredicate) -> Self {
         filterGlobalPredicate = predicate
         return self
     }
     
     @discardableResult
-    public func filter(_ filterClasses: [NSManagedObject.Type], predicates: [Predicate]? = nil) -> Self {
+    public func filter(_ filterClasses: [NSManagedObject.Type], predicates: [NSPredicate]? = nil) -> Self {
         if let predicates = predicates, predicates.count != filterClasses.count {
             print("filterClasses count differs predicates count - filtering won't work as expected!")
             return self
@@ -121,13 +121,13 @@ public class Handler {
     @discardableResult
     public func filter(_ object: NSManagedObject?) -> Self {
         if let object = object {
-            filter(Predicate(format: "objectID = %@", object.objectID))
+            filter(NSPredicate(format: "objectID = %@", object.objectID))
         }
         return self
     }
     
     @discardableResult
-    public func filter(_ filterClass: NSManagedObject.Type, predicate: Predicate? = nil) -> Self {
+    public func filter(_ filterClass: NSManagedObject.Type, predicate: NSPredicate? = nil) -> Self {
         if let description = entityForClass(filterClass) {
             filterEntityDescriptions.append(description)
             filterPredicates.append(predicate)
