@@ -20,7 +20,7 @@ public class Handler {
     private(set) public var observedContext: NSManagedObjectContext
     private(set) public var handleUpdatesWithoutChanges = false
     private(set) public var filterIgnoredKeys: [String]?
-    private var block: ((object: NSManagedObject, type: EventType, keys: [String]) -> Void)?
+    private var block: ((_ object: NSManagedObject, _ type: EventType, _ keys: [String]) -> Void)?
     
     /// A dictionary that is used as a cache for the entityForClass method. The dictionary maps fully qualified core data model class names (Module.ClassName) to the associated NSEntityDescription instance
     private(set) var entityDescriptionsMap = [String: NSEntityDescription]()
@@ -49,7 +49,7 @@ public class Handler {
                 
                 if (!updatedKeys.isEmpty || handleUpdatesWithoutChanges) && isObserved(object) {
                     if ContextObserver.debugOutput { print("U \(object.entity.name != nil ? object.entity.name! : String()) - \(updatedKeys.debugDescription)") }
-                    block?(object: object, type: EventType.Updated, keys: updatedKeys)
+                    block?(object, EventType.Updated, updatedKeys)
                 }
             }
         }
@@ -59,7 +59,7 @@ public class Handler {
             for object in deletedObjects {
                 if isObserved(object) {
                     if ContextObserver.debugOutput { print("D \(object.entity.name != nil ? object.entity.name! : String())") }
-                    block?(object: object, type: EventType.Deleted, keys: emptyArray)
+                    block?(object, EventType.Deleted, emptyArray)
                 }
             }
         }
@@ -69,13 +69,13 @@ public class Handler {
             for object in insertedObjects {
                 if isObserved(object) {
                     if ContextObserver.debugOutput { print("I \(object.entity.name != nil ? object.entity.name! : String())") }
-                    block?(object: object, type: EventType.Inserted, keys: emptyArray)
+                    block?(object, EventType.Inserted, emptyArray)
                 }
             }
         }
     }
     
-    public func block(_ block: (object: NSManagedObject, type: EventType, keys: [String]) -> Void) {
+    public func block(_ block: ((_ object: NSManagedObject, _ type: EventType, _ keys: [String]) -> Void)) {
         self.block = block
     }
     
