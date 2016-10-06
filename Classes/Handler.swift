@@ -75,7 +75,7 @@ public class Handler {
         }
     }
     
-    public func block(_ block: ((_ object: NSManagedObject, _ type: EventType, _ keys: [String]) -> Void)) {
+    public func block(_ block: @escaping ((_ object: NSManagedObject, _ type: EventType, _ keys: [String]) -> Void)) {
         self.block = block
     }
     
