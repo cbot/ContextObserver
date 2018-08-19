@@ -28,7 +28,7 @@ public class ContextObserver: NSObject {
     }
     
     // MARK: - Notifications
-    func managedObjectDidChange(_ notification: Notification) {
+    @objc func managedObjectDidChange(_ notification: Notification) {
         if !active { // observer disabled
             return
         }
