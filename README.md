@@ -12,7 +12,7 @@ ContextObserver supports iOS 7.0 and higher. However, in order to use the CocoaP
 ## Installation via CocoaPods
 The preferred way to use ContextObserver is via CocoaPods. Just add the following line to your Podfile.
 ```
-pod 'ContextObserver', '~> 3.0.0'
+pod 'ContextObserver', '~> 3.0.1'
 ```
 
 ## Manual installation
