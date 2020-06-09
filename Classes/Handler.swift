@@ -5,10 +5,11 @@ public struct EventType : OptionSet {
     public let rawValue: UInt
     public init(rawValue: UInt) {self.rawValue = rawValue}
     
-    public static let All = EventType(rawValue: 7)
+    public static let All = EventType(rawValue: 15)
     public static let Deleted = EventType(rawValue: 1)
     public static let Inserted = EventType(rawValue: 2)
     public static let Updated = EventType(rawValue: 4)
+    public static let Refreshed = EventType(rawValue: 8)
 }
 
 public class Handler {
@@ -29,7 +30,7 @@ public class Handler {
         observedContext = context
     }
     
-    func handle(insertedObjects: Set<NSManagedObject>, deletedObjects: Set<NSManagedObject>, updatedObjects: Set<NSManagedObject>) {
+    func handle(insertedObjects: Set<NSManagedObject>, deletedObjects: Set<NSManagedObject>, updatedObjects: Set<NSManagedObject>, refreshedObjects: Set<NSManagedObject>) {
         if !active {
             return
         }
@@ -53,7 +54,17 @@ public class Handler {
                 }
             }
         }
-        
+
+        if filterMask.contains(.Refreshed) {
+            let emptyArray = [String]()
+            for object in refreshedObjects {
+                if isObserved(object) {
+                    if ContextObserver.debugOutput { print("R \(object.entity.name != nil ? object.entity.name! : String())") }
+                    block?(object, EventType.Refreshed, emptyArray)
+                }
+            }
+        }
+
         if filterMask.contains(.Deleted) {
             let emptyArray = [String]()
             for object in deletedObjects {
