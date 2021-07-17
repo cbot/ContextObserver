@@ -37,9 +37,10 @@ public class ContextObserver: NSObject {
             let insertedObjects = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject> ?? Set<NSManagedObject>()
             let deletedObjects = userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject> ?? Set<NSManagedObject>()
             let updatedObjects = userInfo[NSUpdatedObjectsKey] as? Set<NSManagedObject> ?? Set<NSManagedObject>()
-            
+            let refreshedObjects = userInfo[NSRefreshedObjectsKey] as? Set<NSManagedObject> ?? Set<NSManagedObject>()
+
             for handler in registeredHandlers {
-                handler.handle(insertedObjects: insertedObjects, deletedObjects: deletedObjects, updatedObjects: updatedObjects)
+                handler.handle(insertedObjects: insertedObjects, deletedObjects: deletedObjects, updatedObjects: updatedObjects, refreshedObjects: refreshedObjects)
             }
         }
     }
